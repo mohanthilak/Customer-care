@@ -8,7 +8,14 @@ const chatSchema = new Schema({
     messages: [{
         type: Schema.Types.ObjectId,
         ref: "message",
-    }]
+    }],
+    threadID:{
+        type: String,
+    },
+    socketID: {
+        type: String,
+        required: true,
+    }, 
 })
 
 const ChatModel = model("chat", chatSchema);
