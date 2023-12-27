@@ -19,6 +19,26 @@ class ChatService {
     async addMessageAndSocketId({convoID, socketID, messageText}){
         return this.CR.addMessageAndSocketId({convoID, socketID, messageText})
     }
+    async addMessageAndExecutiveSocketId({convoID, socketID, messageText}){
+        return this.CR.addMessageAndExecutiveSocketId({convoID, socketID, messageText})
+    }
+
+    async SwitchToExecutive({convoID}){
+        return this.CR.SwitchToExecutive({convoID});
+    }
+
+    async RemoveExecutiveSocketIDFromConvo({convoID}){
+        return this.CR.RemoveExecutiveSocketIDFromConvo({convoID})
+    }
+
+
+    async GetAllUnhandledChatsByExecutives(){
+        return this.CR.GetAllUnhandledChatsByExecutives();
+    }
+
+    async removeExecutiveSocketID({socketID}){
+        return this.CR.removeExecutiveSocketID({socketID})
+    }
 }
 
 module.exports = {ChatService};

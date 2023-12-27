@@ -1,7 +1,7 @@
 const axios = require('axios')
 // const {sendWSMessage} = require('../index');
 const OAI = require("openai");
-const OpenAIKey = "";
+const OpenAIKey = "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";
 const openai = new OAI({
     apiKey: OpenAIKey,
 });

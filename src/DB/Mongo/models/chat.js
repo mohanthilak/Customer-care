@@ -15,7 +15,20 @@ const chatSchema = new Schema({
     socketID: {
         type: String,
         required: true,
-    }, 
+    },
+    executiveSocketID: {
+        type: String,
+    },
+    handler:{
+        type:String,
+        default: "bot",
+        enum: ["bot", "executive"],
+    },
+    status:{
+        type:String,
+        default: 'waiting',
+        enum: ['waiting', "closed"]
+    }
 })
 
 const ChatModel = model("chat", chatSchema);
