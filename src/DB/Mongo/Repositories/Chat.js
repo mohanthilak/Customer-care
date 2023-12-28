@@ -122,6 +122,15 @@ class ChatRepo {
         }
     }
 
+    async GetAllChatsWithExecutiveHandler(){
+        try {
+            const chats = await ChatModel.find({handler: "executive"}).populate("messages users").lean();
+            return {success: true, data: chats, error: null}
+        } catch (error) {
+            console.log("error while getting all unhandled chat by executive:", error);
+            return {success: false, data: null, error}
+        }
+    }
 
     async removeExecutiveSocketID({socketID}){
         try {

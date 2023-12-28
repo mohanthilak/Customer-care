@@ -91,56 +91,19 @@ class OpenAI {
         );
         console.log("\n\n RUnID:", run.id)
         runID = run.id;
-
-
-        // await this.axiosPrivate.post(`/threads/${threadID}/runs`, { 
-        //     assistant_id: this.assistantID,
-        //     instructions: "Help the user with his query"
-        //   }).then(res=>{
-        //     console.log("res.data", res.data);
-        //     runID = res.data.id;
-        // }).catch(e=>{
-        //     console.log("error", e)
-        //     // process.exit(0)
-        // })
-        return runID
-        // let intervalID = setInterval(async()=>{
-        //     await this.axiosPrivate.get(`/threads/${threadID}/runs/${runID}`).then(async (res)=>{
-        //         console.log(res.data);
-        //         if(res.data.status == "completed"){
-        //             const response = await this.GetResponse(threadID)
-        //             // a function call to send response back to the user;  
-        //             // console.log("sendmessage:", sendWSMessage, response)
-        //             cb(convoID, response, "bot", threadID)
-        //             clearInterval(intervalID);
-
-        //         }
-        //     }).catch(e=>{
-        //         console.log("error while checking for the status of response", e);
-        //     })
-        // }, 5000)      
+        return runID   
     }
 
 
 
     async GetResponse(threadID){
-        const messages = await openai.beta.threads.messages.list(
-            threadID
-          );
-
-          if(messages){
-            return messages.data[0]
-          }else return null
-          
-        // let response = ""
-        // await this.axiosPrivate(`/threads/${threadID}/messages`).then(res=>{
-        //     console.log("\n\n\n!!@@@!!",res.data)
-        //     response = res.data.data[0];
-        // }).catch(e=>{
-        //     console.log("error while fetching the messages from a thread");
-        // })
-        // return response;
+        const messages = await openai.beta.threads.messages.list(threadID);
+        
+        if(messages) return messages.data[0]
+        else return null
     }
+
+    // async RetrainAssistant({instruction})
     
 }
 

@@ -16,6 +16,9 @@ const UserAPI =  (app,userService) =>{
         res.status(data.sucsess ? 200 : 500).json(data);
     })
 
+    app.get("/user", (req, res)=>{
+        res.send();
+    })
     
 }
 

@@ -53,8 +53,16 @@ class WebSocket{
                 // }
             })
 
+            socket.on("form-submission", async ({convoID, executiveName, executiveID, customerName, customerEmail, customerQuery, resolved, solution})=>{
+                const data = await this.services.form.CreateFormDetails({convoID, executiveName, executiveID, customerName, customerEmail, customerQuery, resolved, solution})
+                if(data.success){
+                    socket.emit("form-response", data);
+                }
+            })
+
             socket.on("load-chats-for-executive", async ()=>{
-                const data = await this.services.chat.GetAllUnhandledChatsByExecutives();
+                const data = await this.services.chat.GetAllChatsWithExecutiveHandler();
+                // const data = await this.services.chat.GetAllUnhandledChatsByExecutives();
                 if(data.success) socket.emit("convos-for-executive", data.data)
             })
 

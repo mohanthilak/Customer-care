@@ -12,3 +12,7 @@ Content-Type: application/json
 
 ###
 GET http://localhost:3000/user/6585b63b3de87b930e1dff5c
+
+
+### 
+GET http://localhost:3000/user/

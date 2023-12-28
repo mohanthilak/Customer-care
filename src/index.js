@@ -15,13 +15,20 @@ const UR = new UserRepo()
 const {ChatRepo} = require("./DB/Mongo/Repositories/Chat")
 const CR = new ChatRepo();
 
-// App services
+const {FormRepo} = require("./DB/Mongo/Repositories/form");
+const FR = new FormRepo();
+
+// App services take their respective DB Repo as their dependency to have access to the DB.
 const {UserService} = require('./services/user')
 const US = new UserService(UR);
 
 // Chat Service
 const {ChatService} = require("./services/Chat")
 const CS = new ChatService(CR);
+
+// Form Service
+const {FormService} = require("./services/form");
+const FS = new FormService(FR);
 
 const {OpenAI} = require("./services/OpenAI")
 const OpenAIKey = "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";
@@ -49,7 +56,7 @@ app.use(express.json());
 
 
 
-const ws = new WebSocket(io, {chat:CS, openAI: OAI}, OpenAIKey, "asst_gxFC1B7pDtcX2V6E9RDYf44b");
+const ws = new WebSocket(io, {chat:CS, openAI: OAI, form:FS}, OpenAIKey, "asst_gxFC1B7pDtcX2V6E9RDYf44b");
 ws.startConnection()
 
 app.use(cors({

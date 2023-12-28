@@ -39,6 +39,9 @@ class ChatService {
     async removeExecutiveSocketID({socketID}){
         return this.CR.removeExecutiveSocketID({socketID})
     }
+    async GetAllChatsWithExecutiveHandler(){
+        return this.CR.GetAllChatsWithExecutiveHandler()
+    }
 }
 
 module.exports = {ChatService};
