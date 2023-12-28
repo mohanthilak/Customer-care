@@ -1,9 +1,8 @@
 const axios = require('axios')
 const OAI = require("openai");
-
-const OpenAIKey = "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";
+const {OPENAI_SECRET_KEY} = require('../config')
 const openai = new OAI({
-    apiKey: OpenAIKey,
+    apiKey: OPENAI_SECRET_KEY,
 });
 class WebSocket{
     constructor(io, services, key, assistantID){

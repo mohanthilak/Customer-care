@@ -31,8 +31,10 @@ const {FormService} = require("./services/form");
 const FS = new FormService(FR);
 
 const {OpenAI} = require("./services/OpenAI")
-const OpenAIKey = "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";
-const OAI = new OpenAI(OpenAIKey, "asst_gxFC1B7pDtcX2V6E9RDYf44b");
+
+const {OPENAI_SECRET_KEY} = require("./config")
+
+const OAI = new OpenAI(OPENAI_SECRET_KEY, "asst_gxFC1B7pDtcX2V6E9RDYf44b");
 
 
 //Web Socket APP
@@ -56,7 +58,7 @@ app.use(express.json());
 
 
 
-const ws = new WebSocket(io, {chat:CS, openAI: OAI, form:FS}, OpenAIKey, "asst_gxFC1B7pDtcX2V6E9RDYf44b");
+const ws = new WebSocket(io, {chat:CS, openAI: OAI, form:FS}, OPENAI_SECRET_KEY, "asst_gxFC1B7pDtcX2V6E9RDYf44b");
 ws.startConnection()
 
 app.use(cors({
