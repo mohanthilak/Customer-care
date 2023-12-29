@@ -36,11 +36,15 @@ class ChatService {
         return this.CR.GetAllUnhandledChatsByExecutives();
     }
 
-    async removeExecutiveSocketID({socketID}){
-        return this.CR.removeExecutiveSocketID({socketID})
+    async removeExecutiveSocketIDAndCloseConversation({socketID}){
+        return this.CR.removeExecutiveSocketIDAndCloseConversation({socketID})
     }
     async GetAllChatsWithExecutiveHandler(){
         return this.CR.GetAllChatsWithExecutiveHandler()
+    }
+
+    async CreateConvoAndAddMessage({socketID, messageText}){
+        return this.CR.CreateConvoAndAddMessage({socketID, messageText})
     }
 }
 

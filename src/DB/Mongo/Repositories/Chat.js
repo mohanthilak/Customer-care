@@ -15,10 +15,25 @@ class ChatRepo {
         }
     }
 
+    async CreateConvoAndAddMessage({socketID, messageText, handler}){
+        try {
+            const message = new MessageModel({text:messageText, sentBy:"user", handler})
+            await message.save();
+            const convo = new ChatModel({socketID});
+            convo.messages = [message._id];
+            await convo.save();
+            return {success: true, data: convo, error: null}
+        } catch (error) {
+            console.log("error while creating a new chat and adding message to it:", error);
+            return {success: false, data: null,error}
+        }
+    }
+
     async GetConvo({convoID}){
         try {
             const convo = await ChatModel.findById(convoID);
             if(convo)return {success: convo ? true : false, data: convo, error: convo ? null : "invalid chatID"};
+            throw "invalid ConvoID"
         } catch (error) {
             console.log("error while getting convo from chat repo:", error);
             return {success: false, data: null, error}
@@ -132,13 +147,13 @@ class ChatRepo {
         }
     }
 
-    async removeExecutiveSocketID({socketID}){
+    async removeExecutiveSocketIDAndCloseConversation({socketID}){
         try {
             console.log("\n\nExecutivesocketID:", socketID)
-            let chats = await ChatModel.updateMany({executiveSocketID: socketID}, {executiveSocketID: null });
-            console.log("chats after executive socketID removal:", chats)
+            let executivechats = await ChatModel.updateMany({executiveSocketID: socketID}, {executiveSocketID: null });
+            let userChats = await ChatModel.updateMany({socketID}, {status: "closed"})
 
-            return {success:true, data:chats, error: null}
+            return {success:true, data:{Executivechats, userChats}, error: null}
         } catch (error) {
             console.log("error while setting executive socket id to null", error)
             return {success:false, data:null, error}

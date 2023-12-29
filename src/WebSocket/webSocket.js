@@ -29,14 +29,10 @@ class WebSocket{
         
             socket.on('disconnect', (reason)=>{
                 console.log("user disconnected:", reason)
-                this.services.chat.removeExecutiveSocketID({socketID:socket.id})
+                this.services.chat.removeExecutiveSocketIDAndCloseConversation({socketID:socket.id})
             })
 
-            socket.on("create-conversation", async()=>{
-                const data = await this.services.chat.CreateConvo({socketID: socket.id});
-                socket.emit("convo-creted", data.data._id)
-            })
-
+            
             socket.on("switch-to-executive", async (convoID)=>{
                 const data = await this.services.chat.SwitchToExecutive({convoID});
                 console.log("\n\ndata:", data)
@@ -44,25 +40,55 @@ class WebSocket{
                     socket.broadcast.emit('new-customer-for-executive', data.data);
                 }
             })
- 
+            
             socket.on('executive-sets-close-conversation', async (convoID) =>{
                 const data = await this.services.chat.RemoveExecutiveSocketIDFromConvo({convoID})
                 // if(data.success){
-                //     socket.broadcast.emit("new-customer-for-executive", data.data);
-                // }
+                    //     socket.broadcast.emit("new-customer-for-executive", data.data);
+                    // }
+                })
+                
+                socket.on("form-submission", async ({convoID, executiveName, executiveID, customerName, customerEmail, customerQuery, resolved, solution})=>{
+                    const data = await this.services.form.CreateFormDetails({convoID, executiveName, executiveID, customerName, customerEmail, customerQuery, resolved, solution})
+                    if(data.success){
+                        socket.emit("form-response", data);
+                    }
+                })
+                
+                socket.on("load-chats-for-executive", async ()=>{
+                    const data = await this.services.chat.GetAllChatsWithExecutiveHandler();
+                    // const data = await this.services.chat.GetAllUnhandledChatsByExecutives();
+                    if(data.success) socket.emit("convos-for-executive", data.data)
+                })
+            
+            socket.on("create-conversation", async()=>{
+                const data = await this.services.chat.CreateConvo({socketID: socket.id});
+                socket.emit("convo-creted", data.data._id)
             })
 
-            socket.on("form-submission", async ({convoID, executiveName, executiveID, customerName, customerEmail, customerQuery, resolved, solution})=>{
-                const data = await this.services.form.CreateFormDetails({convoID, executiveName, executiveID, customerName, customerEmail, customerQuery, resolved, solution})
-                if(data.success){
-                    socket.emit("form-response", data);
+            socket.on("create-convo-and-add-message",async (socketData)=>{
+                console.log("creating conversation + adding the first message", socketData)
+                const {message: messageText, handler} = socketData
+                const data = await this.services.chat.CreateConvoAndAddMessage({socketID:socket.id, messageText: messageText, handler})
+
+                socket.emit("convo-creted", data.data._id)
+
+                if(handler === "executive" && data.success) return socket.broadcast.emit('user-response', data.data);
+
+                const TID = await this.services.openAI.CreateANewConversation();
+                let runID = null;
+                if(TID){
+                    const CreateMessageData = await this.services.openAI.createMessage(TID, messageText);
+                    if(CreateMessageData.success){
+                        runID = await this.services.openAI.RunAssitant(TID,data.data._id);
+                        this.CheckOpenAIAssistantResponseStatus(TID, runID, data.data._id)
+                    }else{
+                        console.log("Unable to Create a new Message")
+                    }
+                }else{
+                    console.log("Could not create a new thread")
                 }
-            })
 
-            socket.on("load-chats-for-executive", async ()=>{
-                const data = await this.services.chat.GetAllChatsWithExecutiveHandler();
-                // const data = await this.services.chat.GetAllUnhandledChatsByExecutives();
-                if(data.success) socket.emit("convos-for-executive", data.data)
             })
 
             socket.on("message", async (socketData)=>{
