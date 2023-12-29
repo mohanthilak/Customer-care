@@ -8,12 +8,17 @@ const server = http.createServer(app);
 
 // APIs
 const {UserAPI} = require('./API/user')
+const {ExecutiveAPI} = require("./API/executive")
+
 // App Repos
 const {UserRepo} = require("./DB/Mongo/Repositories/users")
 const UR = new UserRepo()
 
 const {ChatRepo} = require("./DB/Mongo/Repositories/Chat")
 const CR = new ChatRepo();
+
+const {ExecutiveRepository} = require("./DB/Mongo/Repositories/executive");
+const ER = new ExecutiveRepository;
 
 const {FormRepo} = require("./DB/Mongo/Repositories/form");
 const FR = new FormRepo();
@@ -29,6 +34,10 @@ const CS = new ChatService(CR);
 // Form Service
 const {FormService} = require("./services/form");
 const FS = new FormService(FR);
+
+
+const {ExecutiveService} = require("./services/executive");
+const ES = new ExecutiveService(ER)
 
 const {OpenAI} = require("./services/OpenAI")
 
@@ -70,6 +79,7 @@ app.use(cors({
 
 
 
+ExecutiveAPI(app, ES);
 UserAPI(app, US);
 
 

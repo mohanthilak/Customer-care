@@ -11,9 +11,7 @@ class UserService{
     async GetUserByUID({uid}){
         // some logic
         return this.UserRepo.GetUserByUID({uid});
-    }
-
-    
+    }   
 }
 
 module.exports = {UserService}

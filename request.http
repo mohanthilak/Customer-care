@@ -16,3 +16,16 @@ GET http://localhost:3000/user/6585b63b3de87b930e1dff5c
 
 ### 
 GET http://localhost:3000/user/
+
+###
+GET http://localhost:3000/add-executives HTTP/1.1
+
+
+###
+POST http://localhost:3000/executive/login
+Content-Type: application/json
+
+{
+    "executiveID": "exec3",
+    "password":"exec3pass"
+}
