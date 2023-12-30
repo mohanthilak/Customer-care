@@ -39,9 +39,9 @@ class ExecutiveService {
     async ExecutiveLogin({executiveID, password}){
         try {
             const user = await this.executiveRepo.findExeutiveWithExexcutiveID({executiveID});
-            console.log("user", user, {executiveID, password})
             if(user.data){
-                if(bcrypt.compare(password, user.data.password)){
+                const temp = await bcrypt.compare(password, user.data.password)
+                if(temp){
                     const data = user.data;
                     delete data.password
                     return {success: true, data,error :null}
