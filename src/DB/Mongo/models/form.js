@@ -24,7 +24,15 @@ const formSchema = new Schema({
         type: Boolean,
     },
     solution: {
-        type: String
+        type: String,
+    },
+    reason: {
+        type: String,
+    },
+    trained: {
+        type: Boolean,
+        default: false,
+        required: true
     }
 })
 

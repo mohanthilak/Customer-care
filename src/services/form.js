@@ -3,7 +3,7 @@ class FormService {
         this.formRepo = formRepo;
     }
 
-    async CreateFormDetails({convoID, executiveName, executiveID, customerName, customerEmail, customerQuery, resolved, solution}){
+    async CreateFormDetails({convoID, executiveName, executiveID, customerName, customerEmail, customerQuery, resolved, solution, reason}){
         return this.formRepo.CreateFormDetails({convoID, executiveName, executiveID, customerName, customerEmail, customerQuery, resolved, solution});
     }
 }

@@ -30,6 +30,7 @@ class WebSocket{
             socket.on('disconnect', (reason)=>{
                 console.log("user disconnected:", reason)
                 this.services.chat.removeExecutiveSocketIDAndCloseConversation({socketID:socket.id})
+                socket.broadcast.emit("user-disconected", socket.id)
             })
 
             
@@ -48,8 +49,8 @@ class WebSocket{
                     // }
                 })
                 
-                socket.on("form-submission", async ({convoID, executiveName, executiveID, customerName, customerEmail, customerQuery, resolved, solution})=>{
-                    const data = await this.services.form.CreateFormDetails({convoID, executiveName, executiveID, customerName, customerEmail, customerQuery, resolved, solution})
+                socket.on("form-submission", async ({convoID, executiveName, executiveID, customerName, customerEmail, customerQuery, resolved, solution, reason})=>{
+                    const data = await this.services.form.CreateFormDetails({convoID, executiveName, executiveID, customerName, customerEmail, customerQuery, resolved, solution, reason})
                     if(data.success){
                         socket.emit("form-response", data);
                     }
@@ -57,7 +58,7 @@ class WebSocket{
                 
                 socket.on("load-chats-for-executive", async ()=>{
                     const data = await this.services.chat.GetAllChatsWithExecutiveHandler();
-                    // const data = await this.services.chat.GetAllUnhandledChatsByExecutives();
+                    console.log("\n\nConvos for executive: ", data.data[0].messages)
                     if(data.success) socket.emit("convos-for-executive", data.data)
                 })
             
