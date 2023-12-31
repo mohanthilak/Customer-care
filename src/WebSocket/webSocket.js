@@ -162,6 +162,9 @@ class WebSocket{
                     this.sendMessage(convoID, response, "bot", threadID)
                     clearInterval(intervalID);
                 }
+                else if(run?.status=="failed"){
+                    console.log(run)
+                }
             } catch (error) {
                 console.log("error while requesting status", error);
             }
