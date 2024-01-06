@@ -9,7 +9,7 @@ class FAQService{
         console.log("writing into a file")
         const writeStream = fs.createWriteStream('trainingData.md', { flags: 'a' });
         for (let i = 0; i < faqs.length; i++) { 
-            writeStream.write(`###${faqs[i].FAQ}\n`)
+            writeStream.write(`### ${faqs[i].FAQ}\n`)
             writeStream.write(`${faqs[i].Response}\n\n`)
         }
         writeStream.close()
