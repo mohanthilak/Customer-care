@@ -38,10 +38,32 @@ class FAQRepo{
         try {
             const ids = notSelectedFAQs.map((el)=>el._id)
             const data = await FAQModel.updateMany({_id: {$in: ids}},  {status: "rejected"})
+            console.log("rejectd Data:", data)
+            return {success: true, data, error: null}
+        } catch (error) {
+            console.log("error while setting accepted state to faqs:", error);
+            return {success: false, data:null, error}
+        }
+    }
+
+    async UpdateFAQStatusToAccepted(faq){
+        try {
+            const data = await FAQModel.findByIdAndUpdate(faq._id,  {status: "accepted"})
             console.log("accepted Data:", data)
             return {success: true, data, error: null}
         } catch (error) {
-            console.log("error while setting accepted state to faqs:", faqs);
+            console.log("error while setting accepted state to faq in faq repo:", error);
+            return {success: false, data:null, error}
+        }
+    }
+    
+    async UpdateFAQStatusToRejected(faq){
+        try {
+            const data = await FAQModel.findByIdAndUpdate(faq._id,  {status: "rejected"})
+            console.log("rejected Data:", data)
+            return {success: true, data, error: null}
+        } catch (error) {
+            console.log("error while setting rejected state to faq in faq repo:", error);
             return {success: false, data:null, error}
         }
     }

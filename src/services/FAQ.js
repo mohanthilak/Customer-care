@@ -38,6 +38,16 @@ class FAQService{
             return {success: false, data: null, error}
         }
     }
+
+
+    async AcceptFaq(faq){
+        this.AddNewFAQsToTrainingData([faq]);
+        return this.FaqRepo.UpdateFAQStatusToAccepted(faq);
+    }
+    
+    async RejectFaq(faq){
+        return this.FaqRepo.UpdateFAQStatusToRejected(faq);
+    }
 }
 
 module.exports = {FAQService}

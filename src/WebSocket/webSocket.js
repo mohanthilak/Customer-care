@@ -200,7 +200,7 @@ class WebSocket{
     async FormBatching(form){
         console.log("\n\nForm For Batching:", form)
         this.formBatchArray.push(form);
-        if(this.formBatchArray.length === 2){
+        if(this.formBatchArray.length === 1){
             await this.FormBatchProcessing();
             this.formBatchArray = []
         }
