@@ -9,6 +9,7 @@ const server = http.createServer(app);
 // APIs
 const {UserAPI} = require('./API/user')
 const {ExecutiveAPI} = require("./API/executive")
+const {AdminAPI} = require("./API/admin")
 
 // App Repos
 const {UserRepo} = require("./DB/Mongo/Repositories/users")
@@ -22,6 +23,9 @@ const ER = new ExecutiveRepository;
 
 const {FormRepo} = require("./DB/Mongo/Repositories/form");
 const FR = new FormRepo();
+
+const {FAQRepo} = require("./DB/Mongo/Repositories/FAQ")
+const FaqRepo = new FAQRepo();
 
 // App services take their respective DB Repo as their dependency to have access to the DB.
 const {UserService} = require('./services/user')
@@ -39,11 +43,14 @@ const FS = new FormService(FR);
 const {ExecutiveService} = require("./services/executive");
 const ES = new ExecutiveService(ER)
 
+const {FAQService} = require("./services/FAQ")
+const FaqService = new FAQService(FaqRepo);
+
 const {OpenAI} = require("./services/OpenAI")
 
 const {OPENAI_SECRET_KEY} = require("./config")
 
-const OAI = new OpenAI(OPENAI_SECRET_KEY, "asst_gxFC1B7pDtcX2V6E9RDYf44b");
+const OAI = new OpenAI("asst_yyjt9xUUBAuJTKZ4KYUiZ0Xs", "asst_FjeOo9tfgw6EpWvQTgmKlGlm");
 
 
 //Web Socket APP
@@ -67,7 +74,7 @@ app.use(express.json());
 
 
 
-const ws = new WebSocket(io, {chat:CS, openAI: OAI, form:FS}, OPENAI_SECRET_KEY, "asst_gxFC1B7pDtcX2V6E9RDYf44b");
+const ws = new WebSocket(io, {chat:CS, openAI: OAI, form:FS, Faq: FaqService}, "asst_gxFC1B7pDtcX2V6E9RDYf44b");
 ws.startConnection()
 
 app.use(cors({
@@ -81,6 +88,7 @@ app.use(cors({
 
 ExecutiveAPI(app, ES);
 UserAPI(app, US);
+AdminAPI(app, {faq:FaqService});
 
 
 server.listen(3000, ()=>console.log("Server is listening at port 3000!"))

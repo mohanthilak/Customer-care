@@ -153,7 +153,7 @@ class ChatRepo {
             let executivechats = await ChatModel.updateMany({executiveSocketID: socketID}, {executiveSocketID: null });
             let userChats = await ChatModel.updateMany({socketID}, {status: "closed"})
 
-            return {success:true, data:{Executivechats, userChats}, error: null}
+            return {success:true, data:{executivechats, userChats}, error: null}
         } catch (error) {
             console.log("error while setting executive socket id to null", error)
             return {success:false, data:null, error}

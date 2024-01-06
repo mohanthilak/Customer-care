@@ -1,26 +1,11 @@
-const axios = require('axios')
-const OAI = require("openai");
-const {OPENAI_SECRET_KEY} = require('../config')
-const openai = new OAI({
-    apiKey: OPENAI_SECRET_KEY,
-});
 class WebSocket{
-    constructor(io, services, key, assistantID){
+    constructor(io, services, assistantID){
         this.io = io
         this.services = services;
-        this.key = key;
-        this.baseURL = "https://api.openai.com/v1";
-        this.axiosPrivate = axios.create({
-            baseURL: this.baseURL,
-            timeout: 1000,
-            headers: {Authorization: `Bearer ${this.key}`,"OpenAI-Beta": "assistants=v1"}
-        })
         this.assistantID = assistantID;
+        this.formBatchArray = []
     }
 
-    /* 
-        
-    */
 
 
     startConnection(){
@@ -51,6 +36,7 @@ class WebSocket{
                 
                 socket.on("form-submission", async ({convoID, executiveName, executiveID, customerName, customerEmail, customerQuery, resolved, solution, reason})=>{
                     const data = await this.services.form.CreateFormDetails({convoID, executiveName, executiveID, customerName, customerEmail, customerQuery, resolved, solution, reason})
+                    if(resolved) this.FormBatching({userQuerySummary: customerQuery, solutionSummary:solution})
                     if(data.success){
                         socket.emit("form-response", data);
                     }
@@ -82,7 +68,22 @@ class WebSocket{
                     const CreateMessageData = await this.services.openAI.createMessage(TID, messageText);
                     if(CreateMessageData.success){
                         runID = await this.services.openAI.RunAssitant(TID,data.data._id);
-                        this.CheckOpenAIAssistantResponseStatus(TID, runID, data.data._id)
+                        const statusData = await this.CheckOpenAIAssistantResponseStatus(TID, runID, data.data._id)
+                        if(statusData?.success){
+                            const response = await this.services.openAI.GetResponse(TID)
+                            this.sendMessage(data.data._id, response, "bot", TID)
+                        }else{
+                            socket.emit("response-generation-error",statusData.error)
+                            let SecondrunID = await this.services.openAI.RunAssitant(TID, data.data._id)
+                            const secondStatusID = await this.CheckOpenAIAssistantResponseStatus(TID, SecondrunID, data.data._id)
+                            console.log("secondStatusID: ", secondStatusID);
+                            if(secondStatusID?.success){
+                                const response = await this.services.openAI.GetResponse(TID)
+                                this.sendMessage(data.data._id, response, "bot", TID)
+                            }else{
+                                socket.emit("query-failed", "response couldn't generated")
+                            }
+                        }
                     }else{
                         console.log("Unable to Create a new Message")
                     }
@@ -125,7 +126,23 @@ class WebSocket{
                                 const CreateMessageData = await this.services.openAI.createMessage(TID, messageText);
                                 if(CreateMessageData.success){
                                     runID = await this.services.openAI.RunAssitant(TID,convoID);
-                                    this.CheckOpenAIAssistantResponseStatus(TID, runID, convoID)
+                                    const statusData = await this.CheckOpenAIAssistantResponseStatus(TID, runID, convoID)
+                                    console.log("statusData: ", statusData);
+                                    if(statusData?.success){
+                                        const response = await this.services.openAI.GetResponse(threadID)
+                                        this.sendMessage(convoID, response, "bot", threadID)
+                                    }else{
+                                        socket.emit("response-generation-error",statusData.error)
+                                        SecondrunID = await this.services.openAI.RunAssitant(threadID, convoID)
+                                        const secondStatusID = await this.CheckOpenAIAssistantResponseStatus(threadID, runID, convoID)
+                                        console.log("secondStatusID: ", secondStatusID);
+                                        if(secondStatusID?.success){
+                                            const response = await this.services.openAI.GetResponse(threadID)
+                                            this.sendMessage(convoID, response, "bot", threadID)
+                                        }else{
+                                            socket.emit("query-failed", "response couldn't generated")
+                                        }
+                                    }
                                 }else{
                                     console.log("Unable to Create a new Message")
                                 }
@@ -136,7 +153,23 @@ class WebSocket{
                             console.log("\n\nThreadID exists:", threadID)
                             await this.services.openAI.createMessage(threadID, messageText);
                             runID = await this.services.openAI.RunAssitant(threadID, convoID);
-                            this.CheckOpenAIAssistantResponseStatus(threadID, runID, convoID)
+                            const statusData = await this.CheckOpenAIAssistantResponseStatus(threadID, runID, convoID)
+                            console.log("statusData: ", statusData);
+                            if(statusData?.success){
+                                const response = await this.services.openAI.GetResponse(threadID)
+                                this.sendMessage(convoID, response, "bot", threadID)
+                            }else{
+                                socket.emit("response-generation-error",statusData.error)
+                                SecondrunID = await this.services.openAI.RunAssitant(threadID, convoID)
+                                const secondStatusID = await this.CheckOpenAIAssistantResponseStatus(threadID, runID, convoID)
+                                console.log("secondStatusID: ", secondStatusID);
+                                if(secondStatusID?.success){
+                                    const response = await this.services.openAI.GetResponse(threadID)
+                                    this.sendMessage(convoID, response, "bot", threadID)
+                                }else{
+                                    socket.emit("query-failed", "response couldn't generated")
+                                }
+                            }
                         }
                         
                     }
@@ -146,31 +179,13 @@ class WebSocket{
     }
 
     async CheckOpenAIAssistantResponseStatus(threadID, runID, convoID){
-        let i = 0
-        let intervalID = setInterval(async()=>{
-            i++;
-            if(i >= 6){
-                clearInterval(intervalID);
-                return;
-            }
-            console.log("threadID and runID inside check status:", {threadID, runID})
-            try {
-                const run = await openai.beta.threads.runs.retrieve(threadID,runID);
-                console.log("\n\nstatus:", run?.status)
-                if(run?.status == "completed"){
-                    console.log("\n\nResponse Created!")
-                    const response = await this.services.openAI.GetResponse(threadID)
-                    this.sendMessage(convoID, response, "bot", threadID)
-                    clearInterval(intervalID);
-                }
-                else if(run?.status=="failed"){
-                    console.log(run)
-                }
-            } catch (error) {
-                console.log("error while requesting status", error);
-            }
-        }, 5000)
-        console.log("Out of setInterval")
+        try {
+            const statusInfoFromService = await this.services.openAI.CheckStatus(threadID, runID);
+            return statusInfoFromService;
+        } catch (error) {
+            console.log('error while checking status:', error)
+            return error
+        }
     }
 
     async sendMessage(convoID, message, from, threadID){
@@ -182,21 +197,29 @@ class WebSocket{
         }
     }
 
-    
+    async FormBatching(form){
+        console.log("\n\nForm For Batching:", form)
+        this.formBatchArray.push(form);
+        if(this.formBatchArray.length === 2){
+            await this.FormBatchProcessing();
+            this.formBatchArray = []
+        }
+    }
+
+    async FormBatchProcessing(){
+        let forms = this.formBatchArray;
+        let data = null;
+        do{
+            forms = JSON.stringify(forms)
+            data = await this.services.openAI.GetFAQsFromForms(forms);
+            console.log("\n\n",{data}, "\n\n")
+            if(data.success){
+                // this.services.Faq.AddNewFAQsToTrainingData(data.data);
+                this.services.Faq.StoreFAQsToDB(data.data);
+            }
+            return;
+        }while(!data?.success)
+    }
 }
 
 module.exports = {WebSocket};
-
-
-
-
-// await this.axiosPrivate.get(`/threads/${threadID}/runs/${runID}`).then(async (res)=>{
-            //     if(res.data.status == "completed"){
-            //         console.log("\n\nResponse Created!")
-            //         const response = await this.services.openAI.GetResponse(threadID)
-            //         this.sendMessage(convoID, response, "bot", threadID)
-            //         clearInterval(intervalID);   
-            //     }
-            // }).catch(e=>{
-            //     console.log("error while checking for the status of response", e);
-            // })

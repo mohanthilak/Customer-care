@@ -29,3 +29,40 @@ Content-Type: application/json
     "executiveID": "exec3",
     "password":"exec3pass"
 }
+
+###
+GET http://localhost:3000/admin/faq/all-waiting
+
+
+###
+POST http://localhost:3000/admin/faq/selected-faqs HTTP/1.1
+Content-Type: application/json 
+
+{
+    "faqs": [
+    {
+      "_id": "6599a57290dee6c7e640b343",
+      "FAQ": "When will I receive my hosting earnings?",
+      "Response": "The money you earn from hosting is released to you about 24 hours after your guest’s scheduled check-in time. The exact timing depends on the payout method you’ve selected.",
+      "status": "accepted",
+      "forms": [],
+      "__v": 0
+    },
+    {
+      "_id": "6599a57290dee6c7e640b344",
+      "FAQ": "What are the typical delivery times for different payout methods?",
+      "Response": "The typical delivery times for different payout methods are:\nFast Pay: 30 minutes or less\nPayoneer: 24 hours or less\nPayPal: 1 business day\nWestern Union: 1 business day (varies by country/region)\nBank transfer: 3 to 5 business days\nInternational transfer: 3 to 7 business days",
+      "status": "rejected",
+      "forms": [],
+      "__v": 0
+    },
+    {
+      "_id": "6599a57290dee6c7e640b345",
+      "FAQ": "How are earnings handled for longer stays?",
+      "Response": "When you host a longer stay (28 nights or more), Airbnb sends your earnings in monthly installments, starting about 24 hours after your guest arrives.",
+      "status": "accepted",
+      "forms": [],
+      "__v": 0
+    }
+  ]
+}
