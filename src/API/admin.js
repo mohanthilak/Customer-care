@@ -10,7 +10,18 @@ const AdminAPI = (app, services) =>{
             return res.status(500).json({success: false,data: null, error})
         }
     })
+    
+    app.get("/add-admins", async(req, res)=>{
+        const data = await services.admin.AddAdmin();
+        return res.status(data.success? 200:500).json(data);
+    })
 
+
+    app.post("/admin/login", async (req, res)=>{
+        const {adminID, password} = await req.body;
+        const data = await services.admin.AdminLogin({adminID, password});
+        return res.status(data.success?200:500).json(data);
+    })
 
     app.post("/admin/faq/selected-faqs", async (req, res)=>{
         try {

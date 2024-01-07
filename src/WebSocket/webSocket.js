@@ -29,24 +29,24 @@ class WebSocket{
             
             socket.on('executive-sets-close-conversation', async (convoID) =>{
                 const data = await this.services.chat.RemoveExecutiveSocketIDFromConvo({convoID})
-                // if(data.success){
-                    //     socket.broadcast.emit("new-customer-for-executive", data.data);
-                    // }
-                })
+                if(data.success){
+                    this.io.to(data.data.socketID).emit("convo-ended");
+                }
+            })
                 
-                socket.on("form-submission", async ({convoID, executiveName, executiveID, customerName, customerEmail, customerQuery, resolved, solution, reason})=>{
-                    const data = await this.services.form.CreateFormDetails({convoID, executiveName, executiveID, customerName, customerEmail, customerQuery, resolved, solution, reason})
-                    if(resolved) this.FormBatching({userQuerySummary: customerQuery, solutionSummary:solution})
-                    if(data.success){
-                        socket.emit("form-response", data);
-                    }
-                })
+            socket.on("form-submission", async ({convoID, executiveName, executiveID, customerName, customerEmail, customerQuery, resolved, solution, reason})=>{
+                const data = await this.services.form.CreateFormDetails({convoID, executiveName, executiveID, customerName, customerEmail, customerQuery, resolved, solution, reason})
+                if(resolved) this.FormBatching({userQuerySummary: customerQuery, solutionSummary:solution})
+                if(data.success){
+                    socket.emit("form-response", data);
+                }
+            })
                 
-                socket.on("load-chats-for-executive", async ()=>{
-                    const data = await this.services.chat.GetAllChatsWithExecutiveHandler();
-                    console.log("\n\nConvos for executive: ", data.data[0].messages)
-                    if(data.success) socket.emit("convos-for-executive", data.data)
-                })
+            socket.on("load-chats-for-executive", async ()=>{
+                const data = await this.services.chat.GetAllChatsWithExecutiveHandler();
+                console.log("\n\nConvos for executive: ", data.data[0].messages)
+                if(data.success) socket.emit("convos-for-executive", data.data)
+            })
             
             socket.on("create-conversation", async()=>{
                 const data = await this.services.chat.CreateConvo({socketID: socket.id});

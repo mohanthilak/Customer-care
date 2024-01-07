@@ -26,8 +26,8 @@ POST http://localhost:3000/executive/login
 Content-Type: application/json
 
 {
-    "executiveID": "exec3",
-    "password":"exec3pass"
+  "executiveID": "exec3",
+  "password":"exec3pass"
 }
 
 ###
@@ -66,3 +66,17 @@ Content-Type: application/json
     }
   ]
 }
+
+###
+POST http://localhost:3000/admin/login
+Content-Type: application/json
+
+{
+  "adminID": "admin1",
+  "password":"admin1pass"
+}
+
+
+
+###
+GET http://localhost:3000/add-admins

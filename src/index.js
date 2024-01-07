@@ -15,6 +15,9 @@ const {AdminAPI} = require("./API/admin")
 const {UserRepo} = require("./DB/Mongo/Repositories/users")
 const UR = new UserRepo()
 
+const {AdminRepository} = require("./DB/Mongo/Repositories/admin")
+const AR = new AdminRepository()
+
 const {ChatRepo} = require("./DB/Mongo/Repositories/Chat")
 const CR = new ChatRepo();
 
@@ -45,6 +48,9 @@ const ES = new ExecutiveService(ER)
 
 const {FAQService} = require("./services/FAQ")
 const FaqService = new FAQService(FaqRepo);
+
+const {AdminServices} = require("./services/admin")
+const adminService = new AdminServices(AR);
 
 const {OpenAI} = require("./services/OpenAI")
 
@@ -88,7 +94,7 @@ app.use(cors({
 
 ExecutiveAPI(app, ES);
 UserAPI(app, US);
-AdminAPI(app, {faq:FaqService});
+AdminAPI(app, {faq:FaqService, admin: adminService});
 
 
 server.listen(3000, ()=>console.log("Server is listening at port 3000!"))

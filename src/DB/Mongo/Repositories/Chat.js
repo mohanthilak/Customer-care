@@ -77,7 +77,7 @@ class ChatRepo {
                     convo.messages.push(message._id);
                     await convo.save();
                 }else{
-                    convo.message = [message._id]
+                    convo.messages = [message._id]
                 }
                 return {success: true, data: convo, error: null}
             }
