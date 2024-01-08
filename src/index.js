@@ -66,7 +66,7 @@ const {WebSocket} = require("./WebSocket/webSocket")
 const {makeConnection} = require("./DB/Mongo/connection")
 makeConnection()
 
-
+//Initializing socket io with custom CORS
 const io = new Server(server, {
   cors: {
     origin: "*",
@@ -75,14 +75,16 @@ const io = new Server(server, {
   },
 });
 
+//to accept JSON requests
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 
-
+//websocket handler
 const ws = new WebSocket(io, {chat:CS, openAI: OAI, form:FS, Faq: FaqService}, "asst_gxFC1B7pDtcX2V6E9RDYf44b");
 ws.startConnection()
 
+//http API CORS 
 app.use(cors({
       origin: "*",
       credentials: true,
@@ -91,9 +93,9 @@ app.use(cors({
 );
 
 
-
+//Handling API's 
 ExecutiveAPI(app, ES);
-UserAPI(app, US);
+// UserAPI(app, US);
 AdminAPI(app, {faq:FaqService, admin: adminService});
 
 

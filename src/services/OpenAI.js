@@ -56,7 +56,7 @@ class OpenAI {
                 threadID,
                 { 
                 assistant_id: convoID ? this.assistantID : this.assistantID2,
-                instructions: convoID ? "Please address the user's needs!" : '',
+                instructions: convoID ? '' : '',
                 }
             );
             console.log("\n\n RUnID:", run.id)
